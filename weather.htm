@@ -11,16 +11,19 @@
 <br>
 <button id="weather">Refresh</button>
 <br>
+<hr>
 <div id="location"></div>
 <div id="status"></div>
 <div id="temp"></div>
+<hr>
+<div id="forecast"></div>
 <br>
 </body>
 <script type="text/javascript" src="zepto.min.js"></script>
 <script type="text/javascript" >
 $(function() {
     var baseUrl = "http://api.wunderground.com/api/";
-    var middleUrl = "/conditions/astronomy/q/";
+    var middleUrl = "/conditions/astronomy/forecast/q/";
     var endUrl = ".json";
     var sep = "/";
     
@@ -64,6 +67,16 @@ $(function() {
                 $("#location").text(parsed_json['current_observation']['display_location']['full']);
                 $("#status").text(parsed_json['current_observation']['weather']);
                 $("#temp").text(parsed_json['current_observation']['temperature_string']);
+                
+                var allforecast =  parsed_json['forecast']['txt_forecast']['forecastday'];
+                var fullforecast = [];
+                for (var idx = 0; idx < allforecast.length; idx++) {
+                    fullforecast.push(allforecast[idx]['title']);
+                    fullforecast.push(allforecast[idx]['fcttext']);
+                    fullforecast.push(allforecast[idx]['pop'] + "% chance of precipitation");
+                    fullforecast.push("\n");
+                }
+                $("#forecast").html("<pre>" + fullforecast.join('\n') + "</pre>");
             }
         });
           
