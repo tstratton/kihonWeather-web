@@ -1,0 +1,96 @@
+<body>
+<button id="setCookie">Set</button> <button id="getCookie">Get</button> <button id="clearCookie">Clear</button>
+<br>
+<label for="apikey">Wunderground API key</label>
+<br>
+<input  type="text" id="apikey" name="apikey" maxlength="20" size="30">
+<br>
+<label for="zip">US Zip Code</label>
+<br>
+<input  type="text" id="zip" name="zip" maxlength="10" size="30">
+<br>
+<button id="weather">Refresh</button>
+<br>
+<div id="location"></div>
+<div id="status"></div>
+<div id="temp"></div>
+<br>
+</body>
+<script type="text/javascript" src="zepto.min.js"></script>
+<script type="text/javascript" >
+$(function() {
+    var baseUrl = "http://api.wunderground.com/api/";
+    var middleUrl = "/conditions/astronomy/q/";
+    var endUrl = ".json";
+    var sep = "/";
+    
+    var keyname = "apikey";
+    var zipname = "zip";
+    
+    if (getPersistentValue(keyname)) {
+        $("#"+keyname).val(getPersistentValue(keyname));
+    }
+    if (getPersistentValue(zipname)) {
+        $("#"+zipname).val(getPersistentValue(zipname));
+    }
+    
+    $("#setCookie").click(function (event) {
+        setPersistentValue(keyname, $("#"+keyname).val());
+        setPersistentValue(zipname, $("#"+zipname).val());
+    });
+
+    $("#getCookie").click(function (event) {
+        $("#"+keyname).val(getPersistentValue(keyname));
+        $("#"+zipname).val(getPersistentValue(zipname));
+    });
+    
+    $("#clearCookie").click(function (event) {
+        clearPersistentValues();
+        $("#"+keyname).val(null);
+        $("#"+zipname).val(null);
+    });
+    
+    $("#weather").click(function (event) {
+
+        var fullUrl = baseUrl + $("#"+keyname).val() + middleUrl + $("#"+zipname).val() + endUrl;
+        console.log(fullUrl);
+        
+        $.ajax({
+            url : fullUrl,
+            dataType : "jsonp",
+            success : function(parsed_json) {
+                //console.log(JSON.stringify(parsed_json, null, " "));
+                
+                $("#location").text(parsed_json['current_observation']['display_location']['full']);
+                $("#status").text(parsed_json['current_observation']['weather']);
+                $("#temp").text(parsed_json['current_observation']['temperature_string']);
+            }
+        });
+          
+        return false;
+    });
+});
+
+function setPersistentValue(key, value) {
+    //Check whether local storage is available or not
+    if (window.localStorage) {
+        window.localStorage.setItem(key, value);
+        return true;
+    }
+    return false;
+}
+function getPersistentValue(key) {
+    //Check whether local storage is available or not
+    if (window.localStorage) {
+        return window.localStorage.getItem(key);
+    }
+}
+
+function clearPersistentValues() {
+    //Check whether local storage is available or not
+    if (window.localStorage) {
+        window.localStorage.clear();
+    }
+}
+
+</script>
