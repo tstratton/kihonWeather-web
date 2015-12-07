@@ -26,17 +26,17 @@ $(function() {
     var middleUrl = "/conditions/astronomy/forecast/q/";
     var endUrl = ".json";
     var sep = "/";
-    
+
     var keyname = "apikey";
     var zipname = "zip";
-    
+
     if (getPersistentValue(keyname)) {
         $("#"+keyname).val(getPersistentValue(keyname));
     }
     if (getPersistentValue(zipname)) {
         $("#"+zipname).val(getPersistentValue(zipname));
     }
-    
+
     $("#setCookie").click(function (event) {
         setPersistentValue(keyname, $("#"+keyname).val());
         setPersistentValue(zipname, $("#"+zipname).val());
@@ -46,28 +46,39 @@ $(function() {
         $("#"+keyname).val(getPersistentValue(keyname));
         $("#"+zipname).val(getPersistentValue(zipname));
     });
-    
+
     $("#clearCookie").click(function (event) {
         clearPersistentValues();
         $("#"+keyname).val(null);
         $("#"+zipname).val(null);
     });
-    
+
     $("#weather").click(function (event) {
 
         var fullUrl = baseUrl + $("#"+keyname).val() + middleUrl + $("#"+zipname).val() + endUrl;
         console.log(fullUrl);
-        
+
         $.ajax({
             url : fullUrl,
             dataType : "jsonp",
             success : function(parsed_json) {
                 //console.log(JSON.stringify(parsed_json, null, " "));
-                
+
+                $("#location").text("")
+                $("#status").text("")
+                $("#temp").text("")
+                $("#forecast").text("")
+
+                if (parsed_json['response']['error']) {
+                    $("#location").text(parsed_json['response']['error']['type']);
+                    $("#temp").text(parsed_json['response']['error']['description']);
+                    return;
+                }
+
                 $("#location").text(parsed_json['current_observation']['display_location']['full']);
                 $("#status").text(parsed_json['current_observation']['weather']);
                 $("#temp").text(parsed_json['current_observation']['temperature_string']);
-                
+
                 var allforecast =  parsed_json['forecast']['txt_forecast']['forecastday'];
                 var fullforecast = [];
                 for (var idx = 0; idx < allforecast.length; idx++) {
@@ -79,7 +90,7 @@ $(function() {
                 $("#forecast").html("<pre>" + fullforecast.join('\n') + "</pre>");
             }
         });
-          
+
         return false;
     });
 });
