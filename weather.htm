@@ -30,7 +30,8 @@
 <script type="text/javascript" src="Chart.min.js"></script>
 <script type="text/javascript" >
 $(function() {
-    var baseUrl = "http://api.wunderground.com/api/";
+    var protocol = ('https:' == document.location.protocol ? 'https://' : 'http://');
+    var baseUrl = "api.wunderground.com/api/";
     var middleUrl = "/conditions/astronomy/forecast/hourly/q/";
     var endUrl = ".json";
     var sep = "/";
@@ -65,7 +66,7 @@ $(function() {
 
     $("#weather").click(function (event) {
 
-        var fullUrl = baseUrl + $("#"+keyname).val() + middleUrl + $("#"+zipname).val() + endUrl;
+        var fullUrl = protocol + baseUrl + $("#"+keyname).val() + middleUrl + $("#"+zipname).val() + endUrl;
         console.log(fullUrl);
 
         $.ajax({
