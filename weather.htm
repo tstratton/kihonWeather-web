@@ -140,6 +140,7 @@ $(function() {
                 var chartOptions = {
                     barValueSpacing : 0,
                     scaleBeginAtZero: true,
+                    showTooltips: false,
                 };
                 var chartPrecipData = {
                     labels: hourlytitle,
@@ -148,16 +149,16 @@ $(function() {
                             //FIXME use this for a constant scale for now
                             fillColor: "white",
                             strokeColor: "white",
-                            highlightFill: "white",
-                            highlightStroke: "white",
                             data: [100]
                         },
                         {
                             label: "Precipitation",
-                            fillColor: "rgba(151,187,205,0.5)",
-                            strokeColor: "rgba(151,187,205,0.8)",
-                            highlightFill: "rgba(151,187,205,0.75)",
-                            highlightStroke: "rgba(151,187,205,1)",
+                            fillColor: "rgba(151,187,205,0.2)",
+                            strokeColor: "rgba(151,187,205,1)",
+                            pointColor: "rgba(151,187,205,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(151,187,205,1)",
                             data: hourlyprecip
                         }
                     ]
@@ -166,7 +167,7 @@ $(function() {
                     myPrecipChart.clear();
                     myPrecipChart.destroy();
                 }
-                myPrecipChart = new Chart(precipCtx).Bar(chartPrecipData, chartOptions);
+                myPrecipChart = new Chart(precipCtx).Line(chartPrecipData, chartOptions);
 
                 var chartTempData = {
                     labels: hourlytitle,
@@ -175,8 +176,6 @@ $(function() {
                             //FIXME use this for a constant scale for now
                             fillColor: "white",
                             strokeColor: "white",
-                            highlightFill: "white",
-                            highlightStroke: "white",
                             data: [100]
                         },
                         {
@@ -195,6 +194,7 @@ $(function() {
                     myTempChart.clear();
                     myTempChart.destroy();
                 }
+                chartOptions.showTooltips = true;
                 myTempChart = new Chart(tempCtx).Line(chartTempData, chartOptions);
 
                 $("#tempTitle").text("Temperature")
