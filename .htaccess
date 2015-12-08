@@ -1,0 +1,9 @@
+## BREACH mitigation
+## only compress static javascript, as suggested here:
+## https://community.qualys.com/message/31964#31964
+<IfModule mod_deflate.c>
+   AddOutputFilterByType DEFLATE application/javascript
+   AddOutputFilterByType DEFLATE application/x-javascript
+   AddOutputFilterByType DEFLATE text/javascript
+</IfModule>
+
