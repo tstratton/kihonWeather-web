@@ -7,7 +7,7 @@
 <br>
 <label for="zip">US Zip Code</label>
 <br>
-<input  type="text" id="zip" name="zip" maxlength="10" size="30">
+<input  type="text" id="zip" name="zip" maxlength="50" size="30">
 <br>
 <button id="weather">Refresh</button>
 <br>
@@ -17,16 +17,25 @@
 <div id="temp"></div>
 <div id="sun"></div>
 <hr>
+<div id="precipTitle"></div><br>
+<canvas id="precipChart" width="600" height="200"></canvas>
+<br>
+<div id="tempTitle"></div><br>
+<canvas id="tempChart" width="600" height="200"></canvas>
+<br>
 <div id="forecast"></div>
 <br>
 </body>
 <script type="text/javascript" src="zepto.min.js"></script>
+<script type="text/javascript" src="Chart.min.js"></script>
 <script type="text/javascript" >
 $(function() {
     var baseUrl = "http://api.wunderground.com/api/";
-    var middleUrl = "/conditions/astronomy/forecast/q/";
+    var middleUrl = "/conditions/astronomy/forecast/hourly/q/";
     var endUrl = ".json";
     var sep = "/";
+    var myPrecipChart = null;
+    var myTempChart = null;
 
     var keyname = "apikey";
     var zipname = "zip";
@@ -70,6 +79,8 @@ $(function() {
                 $("#temp").text("")
                 $("#sun").text("")
                 $("#forecast").text("")
+                $("#tempTitle").text("")
+                $("#precipTitle").text("")
 
                 if (parsed_json['response']['error']) {
                     $("#location").text(parsed_json['response']['error']['type']);
@@ -93,6 +104,100 @@ $(function() {
                     fullforecast.push("\n");
                 }
                 $("#forecast").html("<pre>" + fullforecast.join('\n') + "</pre>");
+
+                var hourly = parsed_json['hourly_forecast'];
+                var hourlytitle = [];
+                var hourlytemp = [];
+                var hourlyprecip = [];
+
+                var currday = "";
+                for (var idx = 0; idx < hourly.length; idx++) {
+                    var day = hourly[idx]['FCTTIME']['weekday_name_abbrev'];
+                    if (currday != day) {
+                        currday = day;
+                    } else {
+                        day = "";
+                    }
+                    var hour = hourly[idx]['FCTTIME']['hour'];
+                    if (hour == "0") {
+                        hour = "12am";
+                    } else if (hour > 12) {
+                        hour = (hour - 12) + "pm";
+                    } else if (hour == 12) {
+                        hour = hour + "pm";
+                    } else {
+                        hour = hour + "am";
+                    }
+                    hourlytitle.push(day + " " + hour);
+                    hourlytemp.push(hourly[idx]['temp']['english']);
+                    hourlyprecip.push(hourly[idx]['pop']);
+                }
+
+                var tempCtx = $("#tempChart").get(0).getContext("2d");
+                var precipCtx = $("#precipChart").get(0).getContext("2d");
+
+                var chartOptions = {
+                    barValueSpacing : 0,
+                    scaleBeginAtZero: true,
+                };
+                var chartPrecipData = {
+                    labels: hourlytitle,
+                    datasets: [
+                        {
+                            //FIXME use this for a constant scale for now
+                            fillColor: "white",
+                            strokeColor: "white",
+                            highlightFill: "white",
+                            highlightStroke: "white",
+                            data: [100]
+                        },
+                        {
+                            label: "Precipitation",
+                            fillColor: "rgba(151,187,205,0.5)",
+                            strokeColor: "rgba(151,187,205,0.8)",
+                            highlightFill: "rgba(151,187,205,0.75)",
+                            highlightStroke: "rgba(151,187,205,1)",
+                            data: hourlyprecip
+                        }
+                    ]
+                };
+                if (myPrecipChart != null) {
+                    myPrecipChart.clear();
+                    myPrecipChart.destroy();
+                }
+                myPrecipChart = new Chart(precipCtx).Bar(chartPrecipData, chartOptions);
+
+                var chartTempData = {
+                    labels: hourlytitle,
+                    datasets: [
+                        {
+                            //FIXME use this for a constant scale for now
+                            fillColor: "white",
+                            strokeColor: "white",
+                            highlightFill: "white",
+                            highlightStroke: "white",
+                            data: [100]
+                        },
+                        {
+                            label: "Temperature",
+                            fillColor: "rgba(220,220,220,0.2)",
+                            strokeColor: "rgba(220,220,220,1)",
+                            pointColor: "rgba(220,220,220,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(220,220,220,1)",
+                            data: hourlytemp
+                        }
+                    ]
+                };
+                if (myTempChart != null) {
+                    myTempChart.clear();
+                    myTempChart.destroy();
+                }
+                myTempChart = new Chart(tempCtx).Line(chartTempData, chartOptions);
+
+                $("#tempTitle").text("Temperature")
+                $("#precipTitle").text("Chance of Precipitation")
             }
         });
 
