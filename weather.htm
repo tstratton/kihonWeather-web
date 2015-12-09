@@ -12,6 +12,7 @@
 <button id="weather">Refresh</button>
 <br>
 <hr>
+<div id="time"></div>
 <div id="location"></div>
 <div id="status"></div>
 <div id="temp"></div>
@@ -75,6 +76,7 @@ $(function() {
             success : function(parsed_json) {
                 //console.log(JSON.stringify(parsed_json, null, " "));
 
+                $("#time").text("")
                 $("#location").text("")
                 $("#status").text("")
                 $("#temp").text("")
@@ -89,6 +91,7 @@ $(function() {
                     return;
                 }
 
+                $("#time").text(parsed_json['current_observation']['observation_time']);
                 $("#location").text(parsed_json['current_observation']['display_location']['full']);
                 $("#status").text(parsed_json['current_observation']['weather']);
                 $("#temp").text(parsed_json['current_observation']['temperature_string']);
